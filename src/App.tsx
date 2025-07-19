@@ -224,31 +224,31 @@ const LiquidityManagementSystem: React.FC = () => {
         <div className="flex gap-4 mt-6">
           <button
             onClick={() => setActiveModal('bank-quotes')}
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
           >
-            <Building2 className="h-5 w-5 text-orange-400" />
-            <span className="text-orange-400 font-bold">ציטוטים מבנקים</span>
+            <Building2 className="h-3 w-3 text-orange-400" />
+            <span className="text-orange-400 font-bold text-xs">ציטוטים מבנקים</span>
           </button>
           <button
             onClick={() => setActiveModal('deposit-quotes')}
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
           >
-            <Coins className="h-5 w-5 text-orange-400" />
-            <span className="text-orange-400 font-bold">ציטוטי פקדונות</span>
+            <Coins className="h-3 w-3 text-orange-400" />
+            <span className="text-orange-400 font-bold text-xs">ציטוטי פקדונות</span>
           </button>
           <button
             onClick={() => setActiveModal('transaction-history')}
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
           >
-            <History className="h-5 w-5 text-orange-400" />
-            <span className="text-orange-400 font-bold">הסטוריית עסקאות</span>
+            <History className="h-3 w-3 text-orange-400" />
+            <span className="text-orange-400 font-bold text-xs">הסטוריית עסקאות</span>
           </button>
           <button
             onClick={() => setActiveModal('financial-calculator')}
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
           >
-            <Calculator className="h-5 w-5 text-orange-400" />
-            <span className="text-orange-400 font-bold">מחשבון פיננסי</span>
+            <Calculator className="h-3 w-3 text-orange-400" />
+            <span className="text-orange-400 font-bold text-xs">מחשבון פיננסי</span>
           </button>
         </div>
       </div>
