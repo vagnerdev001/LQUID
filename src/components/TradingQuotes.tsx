@@ -188,7 +188,7 @@ const TradingQuotes: React.FC = () => {
             </div>
           </div>
         ) : (
-        {quotes.map((quote) => (
+        quotes.map((quote) => (
           <div 
             key={quote.id}
             className={`p-4 bg-black border rounded-lg transition-all duration-300 ${
@@ -282,7 +282,6 @@ const TradingQuotes: React.FC = () => {
             )}
           </div>
         ))}
-        )}
       </div>
 
       {/* Market Summary */}
