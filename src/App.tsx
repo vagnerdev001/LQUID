@@ -1132,5 +1132,3 @@ const LiquidityManagementSystem: React.FC = () => {
 };
 
 export default LiquidityManagementSystem;
-
-export default LiquidityManagementSystem
