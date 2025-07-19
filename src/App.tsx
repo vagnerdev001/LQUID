@@ -4,6 +4,7 @@ import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, 
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
 import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
+import TradingQuotes from './components/TradingQuotes';
 
 interface Transaction {
   id: number;
@@ -544,7 +545,7 @@ const LiquidityManagementSystem: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-orange-400 flex items-center gap-2">
                 <Building2 className="h-6 w-6" />
-                ציטוטים מבנקים
+                מק״מים - מסחר חי
               </h3>
               <button 
                 onClick={() => setActiveModal(null)}
@@ -554,43 +555,7 @@ const LiquidityManagementSystem: React.FC = () => {
               </button>
             </div>
             
-            <div className="grid gap-4">
-              {mockBankQuotes.map((quote) => (
-                <div key={quote.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
-                  <div className="grid grid-cols-6 gap-4 items-center">
-                    <div>
-                      <div className="text-orange-400 font-bold">{quote.bank_name}</div>
-                      <div className="text-sm text-gray-400">{quote.quote_type === 'deposit' ? 'פיקדון' : 'הלוואה'}</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-lg font-mono">{quote.rate}%</div>
-                      <div className="text-sm text-gray-400">ריבית שנתית</div>
-                    </div>
-                    <div>
-                      <div className="text-white">{formatCurrency(quote.amount_min)}</div>
-                      <div className="text-sm text-gray-400">מינימום</div>
-                    </div>
-                    <div>
-                      <div className="text-white">{formatCurrency(quote.amount_max)}</div>
-                      <div className="text-sm text-gray-400">מקסימום</div>
-                    </div>
-                    <div>
-                      <div className="text-white">{quote.duration_days} ימים</div>
-                      <div className="text-sm text-gray-400">משך</div>
-                    </div>
-                    <div>
-                      <div className="text-orange-400">{formatTime(quote.valid_until)}</div>
-                      <div className="text-sm text-gray-400">תוקף עד</div>
-                    </div>
-                  </div>
-                  {quote.notes && (
-                    <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
-                      {quote.notes}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <TradingQuotes />
           </div>
         </div>
       )}
