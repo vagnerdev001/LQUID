@@ -4,8 +4,8 @@ import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, 
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
 import { fetchBankQuotes, fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
 import { mockProjectedTransactions } from './data/mockData';
-import { generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
-import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
+import { fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
+import type { DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
 import TradingQuotes from './components/TradingQuotes';
 
@@ -54,7 +54,6 @@ const LiquidityManagementSystem: React.FC = () => {
   const [projectedData, setProjectedData] = useState<any[]>([]);
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [bankQuotes, setBankQuotes] = useState<BankQuote[]>([]);
-  const [depositQuotes, setDepositQuotes] = useState<DepositQuote[]>([]);
   const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
 

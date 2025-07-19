@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Activity, Clock, DollarSign, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, Clock, Zap } from 'lucide-react';
 import { mockBankQuotes } from '../data/mockData';
+import { fetchBankQuotes, supabase } from '../lib/supabase';
 import type { BankQuote } from '../lib/supabase';
 
 interface TradingQuote extends BankQuote {
@@ -21,18 +22,52 @@ const TradingQuotes: React.FC = () => {
 
   // Initialize quotes with trading data
   useEffect(() => {
-    const initialQuotes: TradingQuote[] = mockBankQuotes.map(quote => ({
-      ...quote,
-      currentRate: quote.rate,
-      previousRate: quote.rate,
-      change: 0,
-      changePercent: 0,
-      isFlashing: false,
-      trend: 'neutral' as const,
-      volume: Math.floor(Math.random() * 500000000) + 50000000,
-      lastUpdate: new Date()
-    }));
-    setQuotes(initialQuotes);
+    const loadQuotes = async () => {
+      setIsLoading(true);
+      try {
+        let quotesData = mockBankQuotes;
+        
+        // Try to fetch from Supabase if available
+        if (supabase) {
+          const fetchedQuotes = await fetchBankQuotes();
+          if (fetchedQuotes.length > 0) {
+            quotesData = fetchedQuotes;
+          }
+        }
+        
+        const initialQuotes: TradingQuote[] = quotesData.map(quote => ({
+          ...quote,
+          currentRate: quote.rate,
+          previousRate: quote.rate,
+          change: 0,
+          changePercent: 0,
+          isFlashing: false,
+          trend: 'neutral' as const,
+          volume: Math.floor(Math.random() * 500000000) + 50000000,
+          lastUpdate: new Date()
+        }));
+        setQuotes(initialQuotes);
+      } catch (error) {
+        console.error('Error loading quotes:', error);
+        // Fallback to mock data
+        const initialQuotes: TradingQuote[] = mockBankQuotes.map(quote => ({
+          ...quote,
+          currentRate: quote.rate,
+          previousRate: quote.rate,
+          change: 0,
+          changePercent: 0,
+          isFlashing: false,
+          trend: 'neutral' as const,
+          volume: Math.floor(Math.random() * 500000000) + 50000000,
+          lastUpdate: new Date()
+        }));
+        setQuotes(initialQuotes);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadQuotes();
   }, []);
 
   // Simulate live trading updates
