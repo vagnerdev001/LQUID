@@ -34,7 +34,6 @@ interface Strategy {
   dailyReturn: number;
 }
 
-type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | null;
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | 'financial-calculator' | null;
 
 const LiquidityManagementSystem: React.FC = () => {
@@ -436,6 +435,24 @@ const LiquidityManagementSystem: React.FC = () => {
           
           {/* YTD Performance Summary - only show for daily transactions */}
           {!showProjectedTransactions && performanceData && (
+            <div className="mt-4 p-4 bg-black border border-gray-700 rounded">
+              <h4 className="text-lg font-bold text-orange-400 mb-3">ביצועים מתחילת השנה</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-green-400">
+                    {formatCurrency(performanceData.overall.totalReturn)}
+                  </div>
+                  <div className="text-sm text-gray-400">תשואה כוללת</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-orange-400">
+                    {performanceData.overall.annualRate.toFixed(1)}%
+                  </div>
+                  <div className="text-sm text-gray-400">תשואה שנתית</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Chart Area */}
