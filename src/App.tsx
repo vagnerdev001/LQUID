@@ -205,23 +205,23 @@ const LiquidityManagementSystem: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white p-6" dir="rtl">
       {/* Bloomberg-style Header */}
-      <div className="mb-8 border-b border-orange-500 pb-4">
+      <div className="mb-4 border-b border-orange-500 pb-2">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <div className="bg-orange-500 px-3 py-1 rounded text-black font-bold">LQDT</div>
+          <div className="flex items-center space-x-2">
+            <div className="bg-orange-500 px-1 py-0.5 rounded text-black font-bold text-xs">LQDT</div>
             <div>
-              <h1 className="text-3xl font-bold text-orange-400">מערכת ניהול נזילות</h1>
-              <p className="text-orange-300 mt-1">טרמינל השקעות | חברה 8B ₪</p>
+              <h1 className="text-lg font-bold text-orange-400">מערכת ניהול נזילות</h1>
+              <p className="text-orange-300 text-xs">טרמינל השקעות | חברה 8B ₪</p>
             </div>
           </div>
           <div className="text-left font-mono">
-            <div className="text-2xl text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
+            <div className="text-base text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
             <div className="text-sm text-orange-300">{currentTime.toLocaleDateString('he-IL')}</div>
           </div>
         </div>
         
         {/* Navigation Buttons */}
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-2 mt-3">
           <button
             onClick={() => setActiveModal('bank-quotes')}
             className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
