@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
+import { historicalMonthlyData, calculateYearToDateAverages, generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
 import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
 import TradingQuotes from './components/TradingQuotes';
@@ -35,20 +36,24 @@ interface Strategy {
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | null;
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | 'financial-calculator' | null;
 
-interface TimelineData {
-  date: string;
-  day: number;
-  principal: number;
-  return: number;
-  total: number;
-}
-
 const LiquidityManagementSystem: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState('30');
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [projectedData, setProjectedData] = useState<any[]>([]);
+  const [performanceData, setPerformanceData] = useState<any>(null);
+
+  // Calculate projected returns and performance data
+  useEffect(() => {
+    const days = parseInt(selectedTimeframe);
+    const projected = generateProjectedReturns(days);
+    const performance = getPerformanceComparison();
+    
+    setProjectedData(projected);
+    setPerformanceData(performance);
+  }, [selectedTimeframe]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -115,27 +120,6 @@ const LiquidityManagementSystem: React.FC = () => {
       expectedReturn: amount * (strategy.annualRate / 100) * (days / 365),
       dailyReturn: amount * (strategy.annualRate / 100) / 365
     }));
-  };
-
-  // Timeline data with projected returns
-  const generateTimelineData = (amount: number, strategy: Strategy | null, days: number): TimelineData[] => {
-    const data: TimelineData[] = [];
-    const dailyReturn = strategy ? strategy.dailyReturn : 0;
-    
-    for (let i = 0; i <= days; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      
-      data.push({
-        date: date.toISOString().split('T')[0],
-        day: i,
-        principal: amount,
-        return: dailyReturn * i,
-        total: amount + (dailyReturn * i)
-      });
-    }
-    
-    return data;
   };
 
   const formatCurrency = (amount: number): string => {
@@ -352,6 +336,33 @@ const LiquidityManagementSystem: React.FC = () => {
               </div>
             ))}
           </div>
+          
+          {/* YTD Performance Summary */}
+          {performanceData && (
+            <div className="mt-6 p-4 bg-black border border-gray-700 rounded">
+              <h3 className="text-lg font-bold text-orange-400 mb-3">ביצועים מתחילת השנה</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-red-400">עו"ש ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.currentAccount.avgAmount)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-orange-400">פקדונות ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.bankDeposits.avgAmount)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-green-400">LQDT ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.lqdtSystem.avgAmount)}</span>
+                </div>
+                <div className="border-t border-gray-600 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-400 font-bold">תשואה כוללת:</span>
+                    <span className="text-green-400 font-mono font-bold">{formatCurrency(performanceData.overall.totalReturn)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Chart Area */}
@@ -375,38 +386,103 @@ const LiquidityManagementSystem: React.FC = () => {
             </div>
           </div>
           
-          {selectedTransaction && selectedStrategy ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <AreaChart data={generateTimelineData(selectedTransaction.amount, selectedStrategy, parseInt(selectedTimeframe))}>
-                <defs>
-                  <linearGradient id="colorReturn" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="day" stroke="#f59e0b" />
-                <YAxis stroke="#f59e0b" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#111827', border: '1px solid #f59e0b' }}
-                  formatter={(value) => formatCurrency(value as number)}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="total" 
-                  stroke="#f59e0b" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorReturn)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          {projectedData.length > 0 ? (
+            <div>
+              <ResponsiveContainer width="100%" height={350}>
+                <AreaChart data={projectedData}>
+                  <defs>
+                    <linearGradient id="colorCurrentAccount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorBankDeposits" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.5}/>
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorLqdtSystem" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.7}/>
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="day" stroke="#f59e0b" />
+                  <YAxis stroke="#f59e0b" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#111827', border: '1px solid #f59e0b' }}
+                    formatter={(value, name) => [
+                      formatCurrency(value as number),
+                      name === 'currentAccountReturn' ? 'תשואה עו"ש' :
+                      name === 'bankDepositsReturn' ? 'תשואה פקדונות' :
+                      name === 'lqdtSystemReturn' ? 'תשואה LQDT' :
+                      name === 'totalReturn' ? 'תשואה כוללת' : name
+                    ]}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="currentAccountReturn" 
+                    stackId="1"
+                    stroke="#ef4444" 
+                    strokeWidth={1}
+                    fillOpacity={1} 
+                    fill="url(#colorCurrentAccount)" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="bankDepositsReturn" 
+                    stackId="1"
+                    stroke="#f59e0b" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorBankDeposits)" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="lqdtSystemReturn" 
+                    stackId="1"
+                    stroke="#22c55e" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorLqdtSystem)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+              
+              {/* Performance Metrics */}
+              {performanceData && (
+                <div className="mt-4 grid grid-cols-4 gap-4">
+                  <div className="bg-black border border-red-500 rounded p-3 text-center">
+                    <div className="text-red-400 text-sm">עו"ש</div>
+                    <div className="text-white font-mono">{performanceData.currentAccount.annualRate.toFixed(1)}%</div>
+                    <div className="text-xs text-gray-400">ללא ריבית</div>
+                  </div>
+                  <div className="bg-black border border-orange-500 rounded p-3 text-center">
+                    <div className="text-orange-400 text-sm">פקדונות</div>
+                    <div className="text-white font-mono">{performanceData.bankDeposits.annualRate.toFixed(1)}%</div>
+                    <div className="text-xs text-gray-400">שנתי</div>
+                  </div>
+                  <div className="bg-black border border-green-500 rounded p-3 text-center">
+                    <div className="text-green-400 text-sm">LQDT</div>
+                    <div className="text-white font-mono">{performanceData.lqdtSystem.annualRate.toFixed(1)}%</div>
+                    <div className="text-xs text-gray-400">שנתי</div>
+                  </div>
+                  <div className="bg-black border border-blue-500 rounded p-3 text-center">
+                    <div className="text-blue-400 text-sm">כולל</div>
+                    <div className="text-white font-mono">{performanceData.overall.annualRate.toFixed(1)}%</div>
+                    <div className="text-xs text-gray-400">ממוצע</div>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="h-96 flex items-center justify-center text-gray-500">
               <div className="text-center">
                 <Activity className="h-16 w-16 mx-auto mb-4 text-orange-400" />
-                <p className="text-lg">בחר עסקה לצפייה בתחזית תשואות</p>
-                <p className="text-sm mt-2">לחץ על כרטיסייה בצד שמאל</p>
+                <p className="text-lg">טוען נתוני תשואות חזויות...</p>
+                <p className="text-sm mt-2">מבוסס על נתונים מתחילת השנה</p>
               </div>
             </div>
           )}
