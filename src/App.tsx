@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
+import { supabase, fetchBankQuotes, fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
 import { mockProjectedTransactions } from './data/mockData';
 import { historicalMonthlyData, calculateYearToDateAverages, generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
 import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
@@ -52,6 +53,10 @@ const LiquidityManagementSystem: React.FC = () => {
   const [showProjectedTransactions, setShowProjectedTransactions] = useState(false);
   const [projectedData, setProjectedData] = useState<any[]>([]);
   const [performanceData, setPerformanceData] = useState<any>(null);
+  const [bankQuotes, setBankQuotes] = useState<BankQuote[]>([]);
+  const [depositQuotes, setDepositQuotes] = useState<DepositQuote[]>([]);
+  const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Calculate projected returns and performance data
   useEffect(() => {
@@ -62,6 +67,28 @@ const LiquidityManagementSystem: React.FC = () => {
     setProjectedData(projected);
     setPerformanceData(performance);
   }, [selectedTimeframe]);
+
+  // Load data from Supabase
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoadingData(true);
+      try {
+        const [bankData, depositData, transactionData] = await Promise.all([
+          fetchBankQuotes(),
+          fetchDepositQuotes(),
+          fetchTransactionHistory()
+        ]);
+        
+        setBankQuotes(bankData.length > 0 ? bankData : mockBankQuotes);
+        setDepositQuotes(depositData.length > 0 ? depositData : mockDepositQuotes);
+        setTransactionHistory(transactionData.length > 0 ? transactionData : mockTransactionHistory);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    
+    loadData();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
