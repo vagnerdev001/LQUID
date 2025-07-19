@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Calendar, Bell, Target, Briefcase, AlertCircle, CheckCircle, Play, Clock, ArrowUp, ArrowDown, Activity, Zap } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Activity, Clock, ArrowUp, CheckCircle, Zap } from 'lucide-react';
 
 interface Transaction {
   id: number;
