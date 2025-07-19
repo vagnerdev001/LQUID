@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X } from 'lucide-react';
+import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
 import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
+import FinancialCalculator from './components/FinancialCalculator';
 
 interface Transaction {
   id: number;
@@ -31,6 +32,7 @@ interface Strategy {
 }
 
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | null;
+type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | 'financial-calculator' | null;
 
 interface TimelineData {
   date: string;
@@ -254,6 +256,13 @@ const LiquidityManagementSystem: React.FC = () => {
           >
             <History className="h-5 w-5 text-orange-400" />
             <span className="text-orange-400 font-bold">הסטוריית עסקאות</span>
+          </button>
+          <button
+            onClick={() => setActiveModal('financial-calculator')}
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+          >
+            <Calculator className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">מחשבון פיננסי</span>
           </button>
         </div>
       </div>
@@ -725,6 +734,28 @@ const LiquidityManagementSystem: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Financial Calculator Modal */}
+      {activeModal === 'financial-calculator' && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-orange-500 rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-orange-400 flex items-center gap-2">
+                <Calculator className="h-6 w-6" />
+                מחשבון פיננסי
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <FinancialCalculator />
           </div>
         </div>
       )}
