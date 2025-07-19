@@ -3,7 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
 import { fetchBankQuotes, fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
-import { mockProjectedTransactions } from './data/mockData';
+import { generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
 import { fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
 import type { DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
