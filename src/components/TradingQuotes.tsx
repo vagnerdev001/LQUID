@@ -17,6 +17,7 @@ interface TradingQuote extends BankQuote {
 const TradingQuotes: React.FC = () => {
   const [quotes, setQuotes] = useState<TradingQuote[]>([]);
   const [isLive, setIsLive] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Initialize quotes with trading data
   useEffect(() => {
@@ -281,7 +282,8 @@ const TradingQuotes: React.FC = () => {
               </div>
             )}
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       {/* Market Summary */}
