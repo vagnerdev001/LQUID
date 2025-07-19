@@ -180,6 +180,14 @@ const TradingQuotes: React.FC = () => {
 
       {/* Trading Quotes */}
       <div className="space-y-2">
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
+              <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
+              טוען נתוני מק״מים מהמסד נתונים...
+            </div>
+          </div>
+        ) : (
         {quotes.map((quote) => (
           <div 
             key={quote.id}
@@ -274,6 +282,7 @@ const TradingQuotes: React.FC = () => {
             )}
           </div>
         ))}
+        )}
       </div>
 
       {/* Market Summary */}

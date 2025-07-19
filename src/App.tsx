@@ -957,7 +957,7 @@ const LiquidityManagementSystem: React.FC = () => {
             </div>
             
             <div className="grid gap-4">
-              {mockDepositQuotes.map((quote) => (
+              {depositQuotes.map((quote) => (
                 <div key={quote.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
                   <div className="grid grid-cols-7 gap-4 items-center">
                     <div>
@@ -997,6 +997,14 @@ const LiquidityManagementSystem: React.FC = () => {
                       <div className="text-sm text-gray-400">תוקף עד</div>
                     </div>
                   </div>
+                  {isLoadingData && (
+                    <div className="mt-2 text-center">
+                      <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
+                        <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
+                        טוען נתונים מהמסד נתונים...
+                      </div>
+                    </div>
+                  )}
                   {quote.notes && (
                     <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
                       {quote.notes}
@@ -1027,7 +1035,7 @@ const LiquidityManagementSystem: React.FC = () => {
             </div>
             
             <div className="grid gap-4">
-              {mockTransactionHistory.map((transaction) => (
+              {transactionHistory.map((transaction) => (
                 <div key={transaction.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
                   <div className="grid grid-cols-8 gap-4 items-center">
                     <div>
@@ -1070,6 +1078,14 @@ const LiquidityManagementSystem: React.FC = () => {
                       <div className="text-sm text-gray-400">תשואה</div>
                     </div>
                   </div>
+                  {isLoadingData && (
+                    <div className="mt-2 text-center">
+                      <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
+                        <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
+                        טוען נתונים מהמסד נתונים...
+                      </div>
+                    </div>
+                  )}
                   {transaction.notes && (
                     <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
                       {transaction.notes}
@@ -1079,6 +1095,15 @@ const LiquidityManagementSystem: React.FC = () => {
               ))}
             </div>
           </div>
+          
+          {isLoadingData && (
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
+                <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
+                טוען נתונים מהמסד נתונים...
+              </div>
+            </div>
+          )}
         </div>
       )}
 
