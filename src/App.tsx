@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, Clock, ArrowUp, CheckCircle, Zap } from 'lucide-react';
+import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X } from 'lucide-react';
+import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
+import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
 
 interface Transaction {
   id: number;
@@ -28,6 +30,8 @@ interface Strategy {
   dailyReturn: number;
 }
 
+type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | null;
+
 interface TimelineData {
   date: string;
   day: number;
@@ -41,6 +45,7 @@ const LiquidityManagementSystem: React.FC = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState('30');
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -166,6 +171,49 @@ const LiquidityManagementSystem: React.FC = () => {
     }, 2000);
   };
 
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('he-IL');
+  };
+
+  const formatTime = (dateString: string): string => {
+    return new Date(dateString).toLocaleTimeString('he-IL', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  const getTransactionStatusColor = (status: string): string => {
+    switch (status) {
+      case 'completed': return 'text-green-400';
+      case 'executed': return 'text-blue-400';
+      case 'pending': return 'text-orange-400';
+      case 'cancelled': return 'text-red-400';
+      case 'failed': return 'text-red-500';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const getTransactionStatusText = (status: string): string => {
+    switch (status) {
+      case 'completed': return 'הושלם';
+      case 'executed': return 'בוצע';
+      case 'pending': return 'ממתין';
+      case 'cancelled': return 'בוטל';
+      case 'failed': return 'נכשל';
+      default: return 'לא ידוע';
+    }
+  };
+
+  const getRiskColor = (risk: string): string => {
+    switch (risk) {
+      case 'low': return 'text-green-400';
+      case 'medium': return 'text-yellow-400';
+      case 'medium-high': return 'text-orange-400';
+      case 'high': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white p-6" dir="rtl">
       {/* Bloomberg-style Header */}
@@ -182,6 +230,31 @@ const LiquidityManagementSystem: React.FC = () => {
             <div className="text-2xl text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
             <div className="text-sm text-orange-300">{currentTime.toLocaleDateString('he-IL')}</div>
           </div>
+        </div>
+        
+        {/* Navigation Buttons */}
+        <div className="flex gap-4 mt-6">
+          <button
+            onClick={() => setActiveModal('bank-quotes')}
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+          >
+            <Building2 className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">ציטוטים מבנקים</span>
+          </button>
+          <button
+            onClick={() => setActiveModal('deposit-quotes')}
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+          >
+            <Coins className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">ציטוטי פקדונות</span>
+          </button>
+          <button
+            onClick={() => setActiveModal('transaction-history')}
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
+          >
+            <History className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">הסטוריית עסקאות</span>
+          </button>
         </div>
       </div>
 
@@ -454,6 +527,207 @@ const LiquidityManagementSystem: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Bank Quotes Modal */}
+      {activeModal === 'bank-quotes' && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-orange-500 rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-orange-400 flex items-center gap-2">
+                <Building2 className="h-6 w-6" />
+                ציטוטים מבנקים
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="grid gap-4">
+              {mockBankQuotes.map((quote) => (
+                <div key={quote.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
+                  <div className="grid grid-cols-6 gap-4 items-center">
+                    <div>
+                      <div className="text-orange-400 font-bold">{quote.bank_name}</div>
+                      <div className="text-sm text-gray-400">{quote.quote_type === 'deposit' ? 'פיקדון' : 'הלוואה'}</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-lg font-mono">{quote.rate}%</div>
+                      <div className="text-sm text-gray-400">ריבית שנתית</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{formatCurrency(quote.amount_min)}</div>
+                      <div className="text-sm text-gray-400">מינימום</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{formatCurrency(quote.amount_max)}</div>
+                      <div className="text-sm text-gray-400">מקסימום</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{quote.duration_days} ימים</div>
+                      <div className="text-sm text-gray-400">משך</div>
+                    </div>
+                    <div>
+                      <div className="text-orange-400">{formatTime(quote.valid_until)}</div>
+                      <div className="text-sm text-gray-400">תוקף עד</div>
+                    </div>
+                  </div>
+                  {quote.notes && (
+                    <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
+                      {quote.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit Quotes Modal */}
+      {activeModal === 'deposit-quotes' && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-orange-500 rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-orange-400 flex items-center gap-2">
+                <Coins className="h-6 w-6" />
+                ציטוטי פקדונות
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="grid gap-4">
+              {mockDepositQuotes.map((quote) => (
+                <div key={quote.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
+                  <div className="grid grid-cols-7 gap-4 items-center">
+                    <div>
+                      <div className="text-orange-400 font-bold">{quote.institution_name}</div>
+                      <div className="text-sm text-gray-400">
+                        {quote.deposit_type === 'fixed' ? 'קבוע' : 
+                         quote.deposit_type === 'variable' ? 'משתנה' : 
+                         quote.deposit_type === 'structured' ? 'מובנה' : 'כספים'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-white text-lg font-mono">{quote.rate}%</div>
+                      <div className="text-sm text-gray-400">ריבית</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{formatCurrency(quote.amount_min)}</div>
+                      <div className="text-sm text-gray-400">מינימום</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{quote.duration_days} ימים</div>
+                      <div className="text-sm text-gray-400">משך</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{quote.early_withdrawal_penalty}%</div>
+                      <div className="text-sm text-gray-400">קנס משיכה</div>
+                    </div>
+                    <div>
+                      <div className={`font-bold ${getRiskColor(quote.risk_rating)}`}>
+                        {quote.risk_rating === 'low' ? 'נמוך' :
+                         quote.risk_rating === 'medium' ? 'בינוני' :
+                         quote.risk_rating === 'medium-high' ? 'בינוני-גבוה' : 'גבוה'}
+                      </div>
+                      <div className="text-sm text-gray-400">סיכון</div>
+                    </div>
+                    <div>
+                      <div className="text-orange-400">{formatTime(quote.valid_until)}</div>
+                      <div className="text-sm text-gray-400">תוקף עד</div>
+                    </div>
+                  </div>
+                  {quote.notes && (
+                    <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
+                      {quote.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction History Modal */}
+      {activeModal === 'transaction-history' && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-orange-500 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-orange-400 flex items-center gap-2">
+                <History className="h-6 w-6" />
+                הסטוריית עסקאות
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="grid gap-4">
+              {mockTransactionHistory.map((transaction) => (
+                <div key={transaction.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
+                  <div className="grid grid-cols-8 gap-4 items-center">
+                    <div>
+                      <div className="text-orange-400 font-bold">
+                        {transaction.transaction_type === 'investment' ? 'השקעה' :
+                         transaction.transaction_type === 'deposit' ? 'פיקדון' :
+                         transaction.transaction_type === 'withdrawal' ? 'משיכה' :
+                         transaction.transaction_type === 'transfer' ? 'העברה' : 'פירעון'}
+                      </div>
+                      <div className="text-sm text-gray-400">{formatDate(transaction.execution_date)}</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-lg font-mono">{formatCurrency(transaction.amount)}</div>
+                      <div className="text-sm text-gray-400">סכום</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{transaction.source_institution}</div>
+                      <div className="text-sm text-gray-400">מקור</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{transaction.target_institution || '-'}</div>
+                      <div className="text-sm text-gray-400">יעד</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{transaction.rate ? `${transaction.rate}%` : '-'}</div>
+                      <div className="text-sm text-gray-400">ריבית</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{transaction.duration_days ? `${transaction.duration_days} ימים` : '-'}</div>
+                      <div className="text-sm text-gray-400">משך</div>
+                    </div>
+                    <div>
+                      <div className={`font-bold ${getTransactionStatusColor(transaction.status)}`}>
+                        {getTransactionStatusText(transaction.status)}
+                      </div>
+                      <div className="text-sm text-gray-400">סטטוס</div>
+                    </div>
+                    <div>
+                      <div className="text-white">{formatCurrency(transaction.actual_return || transaction.expected_return)}</div>
+                      <div className="text-sm text-gray-400">תשואה</div>
+                    </div>
+                  </div>
+                  {transaction.notes && (
+                    <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
+                      {transaction.notes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
