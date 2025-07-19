@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
-import { fetchBankQuotes, fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
-import { generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
-import { fetchDepositQuotes, fetchTransactionHistory } from './lib/supabase';
-import type { DepositQuote, TransactionHistory } from './lib/supabase';
+import { mockProjectedTransactions } from './data/mockData';
+import { historicalMonthlyData, calculateYearToDateAverages, generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
+import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
 import TradingQuotes from './components/TradingQuotes';
 
@@ -53,9 +52,6 @@ const LiquidityManagementSystem: React.FC = () => {
   const [showProjectedTransactions, setShowProjectedTransactions] = useState(false);
   const [projectedData, setProjectedData] = useState<any[]>([]);
   const [performanceData, setPerformanceData] = useState<any>(null);
-  const [bankQuotes, setBankQuotes] = useState<BankQuote[]>([]);
-  const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Calculate projected returns and performance data
   useEffect(() => {
@@ -66,28 +62,6 @@ const LiquidityManagementSystem: React.FC = () => {
     setProjectedData(projected);
     setPerformanceData(performance);
   }, [selectedTimeframe]);
-
-  // Load data from Supabase
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoadingData(true);
-      try {
-        const [bankData, depositData, transactionData] = await Promise.all([
-          fetchBankQuotes(),
-          fetchDepositQuotes(),
-          fetchTransactionHistory()
-        ]);
-        
-        setBankQuotes(bankData.length > 0 ? bankData : mockBankQuotes);
-        setDepositQuotes(depositData.length > 0 ? depositData : mockDepositQuotes);
-        setTransactionHistory(transactionData.length > 0 ? transactionData : mockTransactionHistory);
-      } finally {
-        setIsLoadingData(false);
-      }
-    };
-    
-    loadData();
-  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -956,7 +930,7 @@ const LiquidityManagementSystem: React.FC = () => {
             </div>
             
             <div className="grid gap-4">
-              {depositQuotes.map((quote) => (
+              {mockDepositQuotes.map((quote) => (
                 <div key={quote.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
                   <div className="grid grid-cols-7 gap-4 items-center">
                     <div>
@@ -996,14 +970,6 @@ const LiquidityManagementSystem: React.FC = () => {
                       <div className="text-sm text-gray-400">תוקף עד</div>
                     </div>
                   </div>
-                  {isLoadingData && (
-                    <div className="mt-2 text-center">
-                      <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
-                        <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
-                        טוען נתונים מהמסד נתונים...
-                      </div>
-                    </div>
-                  )}
                   {quote.notes && (
                     <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
                       {quote.notes}
@@ -1034,7 +1000,7 @@ const LiquidityManagementSystem: React.FC = () => {
             </div>
             
             <div className="grid gap-4">
-              {transactionHistory.map((transaction) => (
+              {mockTransactionHistory.map((transaction) => (
                 <div key={transaction.id} className="p-4 bg-black border border-gray-700 rounded hover:border-orange-500 transition-all">
                   <div className="grid grid-cols-8 gap-4 items-center">
                     <div>
@@ -1077,14 +1043,6 @@ const LiquidityManagementSystem: React.FC = () => {
                       <div className="text-sm text-gray-400">תשואה</div>
                     </div>
                   </div>
-                  {isLoadingData && (
-                    <div className="mt-2 text-center">
-                      <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
-                        <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
-                        טוען נתונים מהמסד נתונים...
-                      </div>
-                    </div>
-                  )}
                   {transaction.notes && (
                     <div className="mt-2 text-sm text-gray-400 border-t border-gray-700 pt-2">
                       {transaction.notes}
@@ -1094,15 +1052,6 @@ const LiquidityManagementSystem: React.FC = () => {
               ))}
             </div>
           </div>
-          
-          {isLoadingData && (
-            <div className="mt-4 text-center">
-              <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
-                <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
-                טוען נתונים מהמסד נתונים...
-              </div>
-            </div>
-          )}
         </div>
       )}
 

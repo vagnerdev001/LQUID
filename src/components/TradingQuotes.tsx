@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Activity, Clock, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, Clock, DollarSign, Zap } from 'lucide-react';
 import { mockBankQuotes } from '../data/mockData';
-import { fetchBankQuotes, supabase } from '../lib/supabase';
 import type { BankQuote } from '../lib/supabase';
 
 interface TradingQuote extends BankQuote {
@@ -18,56 +17,21 @@ interface TradingQuote extends BankQuote {
 const TradingQuotes: React.FC = () => {
   const [quotes, setQuotes] = useState<TradingQuote[]>([]);
   const [isLive, setIsLive] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Initialize quotes with trading data
   useEffect(() => {
-    const loadQuotes = async () => {
-      setIsLoading(true);
-      try {
-        let quotesData = mockBankQuotes;
-        
-        // Try to fetch from Supabase if available
-        if (supabase) {
-          const fetchedQuotes = await fetchBankQuotes();
-          if (fetchedQuotes.length > 0) {
-            quotesData = fetchedQuotes;
-          }
-        }
-        
-        const initialQuotes: TradingQuote[] = quotesData.map(quote => ({
-          ...quote,
-          currentRate: quote.rate,
-          previousRate: quote.rate,
-          change: 0,
-          changePercent: 0,
-          isFlashing: false,
-          trend: 'neutral' as const,
-          volume: Math.floor(Math.random() * 500000000) + 50000000,
-          lastUpdate: new Date()
-        }));
-        setQuotes(initialQuotes);
-      } catch (error) {
-        console.error('Error loading quotes:', error);
-        // Fallback to mock data
-        const initialQuotes: TradingQuote[] = mockBankQuotes.map(quote => ({
-          ...quote,
-          currentRate: quote.rate,
-          previousRate: quote.rate,
-          change: 0,
-          changePercent: 0,
-          isFlashing: false,
-          trend: 'neutral' as const,
-          volume: Math.floor(Math.random() * 500000000) + 50000000,
-          lastUpdate: new Date()
-        }));
-        setQuotes(initialQuotes);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadQuotes();
+    const initialQuotes: TradingQuote[] = mockBankQuotes.map(quote => ({
+      ...quote,
+      currentRate: quote.rate,
+      previousRate: quote.rate,
+      change: 0,
+      changePercent: 0,
+      isFlashing: false,
+      trend: 'neutral' as const,
+      volume: Math.floor(Math.random() * 500000000) + 50000000,
+      lastUpdate: new Date()
+    }));
+    setQuotes(initialQuotes);
   }, []);
 
   // Simulate live trading updates
@@ -216,15 +180,7 @@ const TradingQuotes: React.FC = () => {
 
       {/* Trading Quotes */}
       <div className="space-y-2">
-        {isLoading ? (
-          <div className="text-center py-8">
-            <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-orange-400 bg-gray-800">
-              <div className="animate-spin -ml-1 mr-3 h-5 w-5 text-orange-400">⟳</div>
-              טוען נתוני מק״מים מהמסד נתונים...
-            </div>
-          </div>
-        ) : (
-        quotes.map((quote) => (
+        {quotes.map((quote) => (
           <div 
             key={quote.id}
             className={`p-4 bg-black border rounded-lg transition-all duration-300 ${
@@ -317,8 +273,7 @@ const TradingQuotes: React.FC = () => {
               </div>
             )}
           </div>
-        ))
-        )}
+        ))}
       </div>
 
       {/* Market Summary */}
