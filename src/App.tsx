@@ -45,6 +45,9 @@ const LiquidityManagementSystem: React.FC = () => {
   const [showProjectedTransactions, setShowProjectedTransactions] = useState(false);
   const [projectedData, setProjectedData] = useState<any[]>([]);
   const [performanceData, setPerformanceData] = useState<any>(null);
+  const [isExecutingStrategy, setIsExecutingStrategy] = useState(false);
+  const [executionStep, setExecutionStep] = useState(0);
+  const [executionSteps, setExecutionSteps] = useState<string[]>([]);
 
   // Calculate projected returns and performance data
   useEffect(() => {
@@ -151,12 +154,36 @@ const LiquidityManagementSystem: React.FC = () => {
   };
 
   const executeStrategy = (strategy: Strategy): void => {
-    setSelectedStrategy(strategy);
-    // Simulate strategy execution
-    setTimeout(() => {
-      setSelectedTransaction(null);
-      setSelectedStrategy(null);
-    }, 2000);
+    setIsExecutingStrategy(true);
+    setExecutionStep(0);
+    
+    // Define execution steps based on strategy
+    const steps = [
+      'יצירת פקודת קנייה בבורסה',
+      'העברת כסף לפיקדון קבוע',
+      'הכנת הוראה מתוזמנת'
+    ];
+    
+    setExecutionSteps(steps);
+    
+    // Execute steps with 3 second intervals
+    let currentStep = 0;
+    const stepInterval = setInterval(() => {
+      currentStep++;
+      setExecutionStep(currentStep);
+      
+      if (currentStep >= steps.length) {
+        clearInterval(stepInterval);
+        // Wait 2 more seconds then close
+        setTimeout(() => {
+          setIsExecutingStrategy(false);
+          setSelectedTransaction(null);
+          setSelectedStrategy(null);
+          setExecutionStep(0);
+          setExecutionSteps([]);
+        }, 2000);
+      }
+    }, 3000);
   };
 
   const formatDate = (dateString: string): string => {
@@ -691,7 +718,7 @@ const LiquidityManagementSystem: React.FC = () => {
         )}
 
         {/* Strategy Execution Confirmation */}
-        {selectedStrategy && (
+        {selectedStrategy && !isExecutingStrategy && (
           <div className="fixed top-4 right-4 bg-orange-500 text-black px-6 py-4 rounded-lg shadow-lg z-50 animate-pulse">
             <div className="flex items-center">
               <CheckCircle className="h-5 w-5 mr-2" />
@@ -699,6 +726,68 @@ const LiquidityManagementSystem: React.FC = () => {
                 <div className="font-bold">אסטרטגיה בביצוע</div>
                 <div className="text-sm">{selectedStrategy.name}</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Strategy Execution Animation Modal */}
+        {isExecutingStrategy && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900 border border-orange-500 rounded-lg p-8 max-w-md w-full">
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center mb-4">
+                  <Zap className="h-8 w-8 text-orange-400 animate-pulse" />
+                </div>
+                <h3 className="text-2xl font-bold text-orange-400 mb-2">שידור אסטרטגיה...</h3>
+                <p className="text-gray-400">משדר את האסטרטגיה "אסטרטגיה שמרנית"</p>
+              </div>
+              
+              <div className="space-y-4">
+                {executionSteps.map((step, index) => (
+                  <div 
+                    key={index}
+                    className={`flex items-center p-4 rounded-lg transition-all duration-500 ${
+                      index < executionStep 
+                        ? 'bg-green-900 border border-green-500' 
+                        : index === executionStep
+                        ? 'bg-orange-900 border border-orange-500 animate-pulse'
+                        : 'bg-gray-800 border border-gray-600'
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-4 ${
+                      index < executionStep 
+                        ? 'bg-green-500' 
+                        : index === executionStep
+                        ? 'bg-orange-500 animate-pulse'
+                        : 'bg-gray-600'
+                    }`}>
+                      {index < executionStep ? (
+                        <CheckCircle className="h-4 w-4 text-white" />
+                      ) : index === executionStep ? (
+                        <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+                      ) : (
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      )}
+                    </div>
+                    <span className={`font-bold ${
+                      index < executionStep 
+                        ? 'text-green-400' 
+                        : index === executionStep
+                        ? 'text-orange-400'
+                        : 'text-gray-400'
+                    }`}>
+                      {step}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              {executionStep >= executionSteps.length && (
+                <div className="mt-6 text-center">
+                  <div className="text-green-400 font-bold text-lg mb-2">הכנת הוראה מתוזמנת</div>
+                  <div className="text-gray-400 text-sm">סיום בעוד שניות...</div>
+                </div>
+              )}
             </div>
           </div>
         )}
