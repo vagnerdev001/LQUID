@@ -436,26 +436,26 @@ const LiquidityManagementSystem: React.FC = () => {
           
           {/* Summary Statistics */}
           {showProjectedTransactions && (
-            <div className="mt-4 p-4 bg-black border border-gray-700 rounded">
-              <h4 className="text-lg font-bold text-blue-400 mb-3">סיכום תזרים חזוי</h4>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="mt-2 p-2 bg-black border border-gray-700 rounded">
+              <h4 className="text-xs font-bold text-blue-400 mb-1">סיכום תזרים חזוי</h4>
+              <div className="grid grid-cols-3 gap-2">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">
+                  <div className="text-sm font-bold text-blue-400">
                     {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.amount, 0))}
                   </div>
-                  <div className="text-sm text-gray-400">סך הכל צפוי</div>
+                  <div className="text-xs text-gray-400">סך הכל צפוי</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">
+                  <div className="text-sm font-bold text-green-400">
                     {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.expected_return, 0))}
                   </div>
-                  <div className="text-sm text-gray-400">תשואה צפויה</div>
+                  <div className="text-xs text-gray-400">תשואה צפויה</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-400">
+                  <div className="text-sm font-bold text-orange-400">
                     {(mockProjectedTransactions.reduce((sum, t) => sum + t.probability, 0) / mockProjectedTransactions.length * 100).toFixed(0)}%
                   </div>
-                  <div className="text-sm text-gray-400">ממוצע סיכוי</div>
+                  <div className="text-xs text-gray-400">ממוצע סיכוי</div>
                 </div>
               </div>
             </div>
