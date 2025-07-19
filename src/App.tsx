@@ -208,15 +208,15 @@ const LiquidityManagementSystem: React.FC = () => {
       <div className="mb-8 border-b border-orange-500 pb-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <div className="bg-orange-500 px-2 py-1 rounded text-black font-bold text-sm">LQDT</div>
+            <div className="bg-orange-500 px-3 py-1 rounded text-black font-bold">LQDT</div>
             <div>
-              <h1 className="text-2xl font-bold text-orange-400">מערכת ניהול נזילות</h1>
-              <p className="text-orange-300 mt-1 text-sm">טרמינל השקעות | חברה 8B ₪</p>
+              <h1 className="text-3xl font-bold text-orange-400">מערכת ניהול נזילות</h1>
+              <p className="text-orange-300 mt-1">טרמינל השקעות | חברה 8B ₪</p>
             </div>
           </div>
           <div className="text-left font-mono">
-            <div className="text-xl text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
-            <div className="text-xs text-orange-300">{currentTime.toLocaleDateString('he-IL')}</div>
+            <div className="text-2xl text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
+            <div className="text-sm text-orange-300">{currentTime.toLocaleDateString('he-IL')}</div>
           </div>
         </div>
         
@@ -224,31 +224,31 @@ const LiquidityManagementSystem: React.FC = () => {
         <div className="flex gap-4 mt-6">
           <button
             onClick={() => setActiveModal('bank-quotes')}
-            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
           >
-            <Building2 className="h-3 w-3 text-orange-400" />
-            <span className="text-orange-400 font-bold text-xs">ציטוטים מבנקים</span>
+            <Building2 className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">ציטוטים מבנקים</span>
           </button>
           <button
             onClick={() => setActiveModal('deposit-quotes')}
-            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
           >
-            <Coins className="h-3 w-3 text-orange-400" />
-            <span className="text-orange-400 font-bold text-xs">ציטוטי פקדונות</span>
+            <Coins className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">ציטוטי פקדונות</span>
           </button>
           <button
             onClick={() => setActiveModal('transaction-history')}
-            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
           >
-            <History className="h-3 w-3 text-orange-400" />
-            <span className="text-orange-400 font-bold text-xs">הסטוריית עסקאות</span>
+            <History className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">הסטוריית עסקאות</span>
           </button>
           <button
             onClick={() => setActiveModal('financial-calculator')}
-            className="flex items-center gap-1 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-2 py-1 rounded-lg transition-all duration-300"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
           >
-            <Calculator className="h-3 w-3 text-orange-400" />
-            <span className="text-orange-400 font-bold text-xs">מחשבון פיננסי</span>
+            <Calculator className="h-5 w-5 text-orange-400" />
+            <span className="text-orange-400 font-bold">מחשבון פיננסי</span>
           </button>
         </div>
       </div>
