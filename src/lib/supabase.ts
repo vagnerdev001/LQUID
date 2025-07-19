@@ -55,3 +55,17 @@ export interface TransactionHistory {
   created_at: string
   updated_at: string
 }
+
+export interface ProjectedTransaction {
+  id: string
+  transaction_date: string
+  amount: number
+  source_institution: string
+  transaction_type: string
+  probability: number
+  expected_return: number
+  duration_days: number
+  notes?: string
+  created_at: string
+  updated_at: string
+}
