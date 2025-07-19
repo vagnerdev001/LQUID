@@ -1,12 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey !== 'placeholder-anon-key' 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 // Database operations
 export const fetchBankQuotes = async (): Promise<BankQuote[]> => {
+  if (!supabase) {
+    console.warn('Supabase not configured, using mock data');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('bank_quotes')
     .select('*')
@@ -21,6 +28,11 @@ export const fetchBankQuotes = async (): Promise<BankQuote[]> => {
 };
 
 export const fetchDepositQuotes = async (): Promise<DepositQuote[]> => {
+  if (!supabase) {
+    console.warn('Supabase not configured, using mock data');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('deposit_quotes')
     .select('*')
@@ -35,6 +47,11 @@ export const fetchDepositQuotes = async (): Promise<DepositQuote[]> => {
 };
 
 export const fetchTransactionHistory = async (): Promise<TransactionHistory[]> => {
+  if (!supabase) {
+    console.warn('Supabase not configured, using mock data');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('transaction_history')
     .select('*')
