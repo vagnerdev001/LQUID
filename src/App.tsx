@@ -34,12 +34,6 @@ interface Strategy {
   dailyReturn: number;
 }
 
-interface StrategyExecution {
-  strategy: Strategy;
-  transaction: Transaction;
-  isExecuting: boolean;
-}
-
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | 'financial-calculator' | null;
 
 const LiquidityManagementSystem: React.FC = () => {
@@ -47,7 +41,6 @@ const LiquidityManagementSystem: React.FC = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState('30');
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
-  const [strategyExecution, setStrategyExecution] = useState<StrategyExecution | null>(null);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [showProjectedTransactions, setShowProjectedTransactions] = useState(false);
   const [projectedData, setProjectedData] = useState<any[]>([]);
@@ -158,33 +151,12 @@ const LiquidityManagementSystem: React.FC = () => {
   };
 
   const executeStrategy = (strategy: Strategy): void => {
-    if (selectedTransaction) {
-      setStrategyExecution({
-        strategy,
-        transaction: selectedTransaction,
-        isExecuting: false
-      });
+    setSelectedStrategy(strategy);
+    // Simulate strategy execution
+    setTimeout(() => {
       setSelectedTransaction(null);
-    }
-  };
-
-  const confirmStrategyExecution = (): void => {
-    if (strategyExecution) {
-      setStrategyExecution({
-        ...strategyExecution,
-        isExecuting: true
-      });
-      
-      // Simulate execution
-      setTimeout(() => {
-        setStrategyExecution(null);
-        setSelectedStrategy(null);
-      }, 3000);
-    }
-  };
-
-  const cancelStrategyExecution = (): void => {
-    setStrategyExecution(null);
+      setSelectedStrategy(null);
+    }, 2000);
   };
 
   const formatDate = (dateString: string): string => {
@@ -233,23 +205,23 @@ const LiquidityManagementSystem: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white p-6" dir="rtl">
       {/* Bloomberg-style Header */}
-      <div className="mb-4 border-b border-orange-500 pb-2">
+      <div className="mb-8 border-b border-orange-500 pb-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="bg-orange-500 px-1 py-0.5 rounded text-black font-bold text-xs">LQDT</div>
+          <div className="flex items-center space-x-4">
+            <div className="bg-orange-500 px-3 py-1 rounded text-black font-bold">LQDT</div>
             <div>
-              <h1 className="text-lg font-bold text-orange-400">מערכת ניהול נזילות</h1>
-              <p className="text-orange-300 text-xs">טרמינל השקעות | חברה 8B ₪</p>
+              <h1 className="text-3xl font-bold text-orange-400">מערכת ניהול נזילות</h1>
+              <p className="text-orange-300 mt-1">טרמינל השקעות | חברה 8B ₪</p>
             </div>
           </div>
           <div className="text-left font-mono">
-            <div className="text-base text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
+            <div className="text-2xl text-orange-400">{currentTime.toLocaleTimeString('he-IL')}</div>
             <div className="text-sm text-orange-300">{currentTime.toLocaleDateString('he-IL')}</div>
           </div>
         </div>
         
         {/* Navigation Buttons */}
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-4 mt-6">
           <button
             onClick={() => setActiveModal('bank-quotes')}
             className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 border border-orange-500 hover:border-orange-400 px-4 py-2 rounded-lg transition-all duration-300"
@@ -436,26 +408,26 @@ const LiquidityManagementSystem: React.FC = () => {
           
           {/* Summary Statistics */}
           {showProjectedTransactions && (
-            <div className="mt-2 p-2 bg-black border border-gray-700 rounded">
-              <h4 className="text-xs font-bold text-blue-400 mb-1">סיכום תזרים חזוי</h4>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="mt-4 p-4 bg-black border border-gray-700 rounded">
+              <h4 className="text-lg font-bold text-blue-400 mb-3">סיכום תזרים חזוי</h4>
+              <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-sm font-bold text-blue-400">
+                  <div className="text-2xl font-bold text-blue-400">
                     {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.amount, 0))}
                   </div>
-                  <div className="text-xs text-gray-400">סך הכל צפוי</div>
+                  <div className="text-sm text-gray-400">סך הכל צפוי</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-green-400">
+                  <div className="text-2xl font-bold text-green-400">
                     {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.expected_return, 0))}
                   </div>
-                  <div className="text-xs text-gray-400">תשואה צפויה</div>
+                  <div className="text-sm text-gray-400">תשואה צפויה</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-orange-400">
+                  <div className="text-2xl font-bold text-orange-400">
                     {(mockProjectedTransactions.reduce((sum, t) => sum + t.probability, 0) / mockProjectedTransactions.length * 100).toFixed(0)}%
                   </div>
-                  <div className="text-xs text-gray-400">ממוצע סיכוי</div>
+                  <div className="text-sm text-gray-400">ממוצע סיכוי</div>
                 </div>
               </div>
             </div>
@@ -731,164 +703,6 @@ const LiquidityManagementSystem: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Strategy Execution Screen */}
-      {strategyExecution && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 border border-orange-500 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-orange-400">אסטרטגיות השקעה</h3>
-              <button 
-                onClick={cancelStrategyExecution}
-                className="text-gray-400 hover:text-white text-2xl"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            
-            {/* Transaction Summary */}
-            <div className="mb-6 p-4 bg-black border border-gray-700 rounded-lg">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <div className="text-gray-400 text-sm">סכום</div>
-                  <div className="text-orange-400 text-2xl font-mono">
-                    {formatCurrency(strategyExecution.transaction.amount)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">מקור</div>
-                  <div className="text-white text-lg">{strategyExecution.transaction.source}</div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">מספר ימי השקעה</div>
-                  <div className="text-white text-2xl">{strategyExecution.transaction.daysToPayment}</div>
-                  <button className="bg-orange-500 text-black px-3 py-1 rounded text-sm font-bold mt-1">
-                    <Activity className="h-4 w-4 inline mr-1" />
-                    רענן
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Conservative Strategy */}
-            <div className="mb-6 p-4 bg-gray-800 border border-green-500 rounded-lg">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-black text-sm">★</span>
-                  </div>
-                  <div>
-                    <h4 className="text-white font-bold text-lg">אסטרטגיה שמרנית</h4>
-                    <p className="text-gray-400 text-sm">המלצה של מק"מ ופיקדון קצר מועד, התואמת לשמירת הון עם תשואה צנועה.</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-green-400 text-2xl font-bold">₪4,513</div>
-                  <div className="text-gray-400 text-sm">תשואה צפויה</div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div>
-                  <div className="text-gray-400 text-sm">תשואה שנתית</div>
-                  <div className="text-white font-mono">0.03%</div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">רמת סיכון</div>
-                  <div className="text-white">נמוכה</div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">תשואה יומית</div>
-                  <div className="text-white font-mono">₪161</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-gray-400 text-sm font-bold">פיזור השקעה:</div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white">מק"מ</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-400">0.5%</span>
-                    <span className="text-green-400 font-mono">0.03%</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white">פיקדון קצר מועד</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-400">0.5%</span>
-                    <span className="text-green-400 font-mono">0.04%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Balanced Strategy */}
-            <div className="mb-6 p-4 bg-gray-800 border border-gray-600 rounded-lg">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h4 className="text-white font-bold text-lg">אסטרטגיה שמרנית</h4>
-                  <p className="text-gray-400 text-sm">התמקדות בהשקעות מגוונות במכשירי חוב עם ירידת הסיכון קצת יותר תשואה קצת.</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-green-400 text-2xl font-bold">₪2,668</div>
-                  <div className="text-gray-400 text-sm">תשואה צפויה</div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div>
-                  <div className="text-gray-400 text-sm">תשואה שנתית</div>
-                  <div className="text-white font-mono">0.03%</div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">רמת סיכון</div>
-                  <div className="text-white">נמוכה מאוד</div>
-                </div>
-                <div>
-                  <div className="text-gray-400 text-sm">תשואה יומית</div>
-                  <div className="text-white font-mono">₪95</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-gray-400 text-sm font-bold">פיזור השקעה:</div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white">פיקדון</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-gray-400">1%</span>
-                    <span className="text-green-400 font-mono">0.03%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <button 
-                onClick={confirmStrategyExecution}
-                disabled={strategyExecution.isExecuting}
-                className={`flex-1 py-3 px-6 rounded-lg font-bold transition-all ${
-                  strategyExecution.isExecuting
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
-                    : 'bg-orange-500 hover:bg-orange-600 text-black'
-                }`}
-              >
-                <div className="flex items-center justify-center">
-                  <Zap className="h-5 w-5 mr-2" />
-                  {strategyExecution.isExecuting ? 'מבצע אסטרטגיה...' : 'שדר אסטרטגיה'}
-                </div>
-              </button>
-              <button 
-                onClick={cancelStrategyExecution}
-                disabled={strategyExecution.isExecuting}
-                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors disabled:opacity-50"
-              >
-                ביטול
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Bank Quotes Modal */}
       {activeModal === 'bank-quotes' && (
