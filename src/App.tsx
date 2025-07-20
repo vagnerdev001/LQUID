@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, Clock, ArrowUp, CheckCircle, Zap, Building2, Coins, History, X, Calculator } from 'lucide-react';
 import { mockBankQuotes, mockDepositQuotes, mockTransactionHistory } from './data/mockData';
-import { mockProjectedTransactions } from './data/mockData';
 import { historicalMonthlyData, calculateYearToDateAverages, generateProjectedReturns, getPerformanceComparison } from './data/historicalData';
 import type { BankQuote, DepositQuote, TransactionHistory } from './lib/supabase';
 import FinancialCalculator from './components/FinancialCalculator';
@@ -34,6 +33,7 @@ interface Strategy {
   dailyReturn: number;
 }
 
+type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | null;
 type ActiveModal = 'bank-quotes' | 'deposit-quotes' | 'transaction-history' | 'financial-calculator' | null;
 
 const LiquidityManagementSystem: React.FC = () => {
@@ -42,7 +42,6 @@ const LiquidityManagementSystem: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30');
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
-  const [showProjectedTransactions, setShowProjectedTransactions] = useState(false);
   const [projectedData, setProjectedData] = useState<any[]>([]);
   const [performanceData, setPerformanceData] = useState<any>(null);
 
@@ -300,155 +299,66 @@ const LiquidityManagementSystem: React.FC = () => {
         
         {/* Daily Transactions Feed */}
         <div className="bg-gray-900 border border-orange-500 rounded p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-orange-400 flex items-center">
-              <Activity className="h-5 w-5 mr-2" />
-              {showProjectedTransactions ? 'תזרים עסקאות חזוי' : 'זרימת עסקאות יומית'}
-            </h2>
-            <div className="flex items-center gap-3">
-              <span className={`text-sm ${!showProjectedTransactions ? 'text-orange-400' : 'text-gray-400'}`}>
-                יומי
-              </span>
-              <button
-                onClick={() => setShowProjectedTransactions(!showProjectedTransactions)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  showProjectedTransactions ? 'bg-orange-500' : 'bg-gray-600'
-                }`}
+          <h2 className="text-xl font-bold text-orange-400 mb-4 flex items-center">
+            <Activity className="h-5 w-5 mr-2" />
+            זרימת עסקאות יומית
+          </h2>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {dailyTransactions.map((transaction) => (
+              <div 
+                key={transaction.id}
+                className="p-4 bg-black border border-gray-700 rounded cursor-pointer hover:border-orange-500 transition-all duration-300"
+                onClick={() => setSelectedTransaction(transaction)}
               >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    showProjectedTransactions ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-              <span className={`text-sm ${showProjectedTransactions ? 'text-orange-400' : 'text-gray-400'}`}>
-                חזוי
-              </span>
-            </div>
-          </div>
-          
-          {!showProjectedTransactions ? (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {dailyTransactions.map((transaction) => (
-                <div 
-                  key={transaction.id}
-                  className="p-4 bg-black border border-gray-700 rounded cursor-pointer hover:border-orange-500 transition-all duration-300"
-                  onClick={() => setSelectedTransaction(transaction)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <div className="font-mono text-orange-400 text-lg">
-                        {formatCurrency(transaction.amount)}
-                      </div>
-                      <div className="text-sm text-gray-400">{transaction.source}</div>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="font-mono text-orange-400 text-lg">
+                      {formatCurrency(transaction.amount)}
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-400">{transaction.time}</div>
-                      <div className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(transaction.status)}`}>
-                        {getStatusText(transaction.status)}
-                      </div>
-                    </div>
+                    <div className="text-sm text-gray-400">{transaction.source}</div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center text-sm text-gray-400">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {transaction.daysToPayment} ימים לתשלום
-                    </div>
-                    <div className="text-sm text-orange-400">
-                      לחץ לאסטרטגיות →
+                  <div className="text-right">
+                    <div className="text-sm text-gray-400">{transaction.time}</div>
+                    <div className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(transaction.status)}`}>
+                      {getStatusText(transaction.status)}
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {mockProjectedTransactions.map((transaction) => (
-                <div 
-                  key={transaction.id}
-                  className="p-4 bg-black border border-gray-700 rounded hover:border-blue-500 transition-all duration-300"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <div className="font-mono text-blue-400 text-lg">
-                        {formatCurrency(transaction.amount)}
-                      </div>
-                      <div className="text-sm text-gray-400">{transaction.source_institution}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-400">
-                        {new Date(transaction.transaction_date).toLocaleDateString('he-IL')}
-                      </div>
-                      <div className={`px-2 py-1 rounded text-xs font-bold ${
-                        transaction.probability >= 0.9 ? 'bg-green-500' :
-                        transaction.probability >= 0.8 ? 'bg-yellow-500' : 'bg-orange-500'
-                      }`}>
-                        {(transaction.probability * 100).toFixed(0)}% סיכוי
-                      </div>
-                    </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center text-sm text-gray-400">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {transaction.daysToPayment} ימים לתשלום
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center text-sm text-gray-400">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {transaction.duration_days} ימים השקעה
-                    </div>
-                    <div className="text-sm text-green-400">
-                      תשואה צפויה: {formatCurrency(transaction.expected_return)}
-                    </div>
+                  <div className="text-sm text-orange-400">
+                    לחץ לאסטרטגיות →
                   </div>
-                  {transaction.notes && (
-                    <div className="text-xs text-gray-500 italic border-t border-gray-700 pt-2">
-                      {transaction.notes}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Summary Statistics */}
-          {showProjectedTransactions && (
-            <div className="mt-4 p-4 bg-black border border-gray-700 rounded">
-              <h4 className="text-lg font-bold text-blue-400 mb-3">סיכום תזרים חזוי</h4>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">
-                    {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.amount, 0))}
-                  </div>
-                  <div className="text-sm text-gray-400">סך הכל צפוי</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">
-                    {formatCurrency(mockProjectedTransactions.reduce((sum, t) => sum + t.expected_return, 0))}
-                  </div>
-                  <div className="text-sm text-gray-400">תשואה צפויה</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-400">
-                    {(mockProjectedTransactions.reduce((sum, t) => sum + t.probability, 0) / mockProjectedTransactions.length * 100).toFixed(0)}%
-                  </div>
-                  <div className="text-sm text-gray-400">ממוצע סיכוי</div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
           
-          {/* YTD Performance Summary - only show for daily transactions */}
-          {!showProjectedTransactions && performanceData && (
-            <div className="mt-4 p-4 bg-black border border-gray-700 rounded">
-              <h4 className="text-lg font-bold text-orange-400 mb-3">ביצועים מתחילת השנה</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-xl font-bold text-green-400">
-                    {formatCurrency(performanceData.overall.totalReturn)}
-                  </div>
-                  <div className="text-sm text-gray-400">תשואה כוללת</div>
+          {/* YTD Performance Summary */}
+          {performanceData && (
+            <div className="mt-6 p-4 bg-black border border-gray-700 rounded">
+              <h3 className="text-lg font-bold text-orange-400 mb-3">ביצועים מתחילת השנה</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-red-400">עו"ש ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.currentAccount.avgAmount)}</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-orange-400">
-                    {performanceData.overall.annualRate.toFixed(1)}%
+                <div className="flex justify-between items-center">
+                  <span className="text-orange-400">פקדונות ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.bankDeposits.avgAmount)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-green-400">LQDT ממוצע:</span>
+                  <span className="text-white font-mono">{formatCurrency(performanceData.lqdtSystem.avgAmount)}</span>
+                </div>
+                <div className="border-t border-gray-600 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-400 font-bold">תשואה כוללת:</span>
+                    <span className="text-green-400 font-mono font-bold">{formatCurrency(performanceData.overall.totalReturn)}</span>
                   </div>
-                  <div className="text-sm text-gray-400">תשואה שנתית</div>
                 </div>
               </div>
             </div>
